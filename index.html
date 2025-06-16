@@ -1,59 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CDR Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📞 CDR Viewer</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 20px;
-      background: #f4f6f8;
+     :root {
+      --bg-light: #f4f6f8;
+      --bg-dark: #1e1e2f;
+      --text-light: #333;
+      --text-dark: #f0f0f0;
+      --primary: #007bff;
+      --card-bg-light: #fff;
+      --card-bg-dark: #2d2d44;
+      --border-light: #ccc;
+      --border-dark: #444;
     }
+
+    [data-theme='dark'] {
+      --bg: var(--bg-dark);
+      --text: var(--text-dark);
+      --card-bg: var(--card-bg-dark);
+      --border: var(--border-dark);
+    }
+
+    [data-theme='light'] {
+      --bg: var(--bg-light);
+      --text: var(--text-light);
+      --card-bg: var(--card-bg-light);
+      --border: var(--border-light);
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem;
+    }
+
     h2 {
       text-align: center;
-      color: #333;
     }
-    input[type="file"] {
-      display: block;
-      margin: 20px auto;
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
     }
+
+    input[type="file"], input[type="text"], button {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background-color: var(--card-bg);
+      color: var(--text);
+    }
+
+    button {
+      cursor: pointer;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
+
     th, td {
       padding: 10px;
-      border-bottom: 1px solid #ddd;
       text-align: left;
+      border-bottom: 1px solid var(--border);
     }
+
     th {
-      background-color: #007BFF;
+      background-color: var(--primary);
       color: white;
       cursor: pointer;
     }
-    tr:hover {
-      background-color: #f1f1f1;
+
+    tr:nth-child(even) {
+      background-color: rgba(0, 0, 0, 0.03);
     }
-    #searchInput {
-      margin: 20px auto;
-      display: block;
+
+    .summary {
+      display: flex;
+      justify-content: space-around;
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .summary div {
+      font-size: 14px;
+    }
+
+    @media(max-width: 600px) {
+      .summary {
+        flex-direction: column;
+        gap: 10px;
+      }
+      th, td {
+        font-size: 12px;
+      }
+    }
+  
+
+    .filter-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    select, input[type="number"] {
       padding: 10px;
-      width: 80%;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border);
       border-radius: 5px;
+      background-color: var(--card-bg);
+      color: var(--text);
     }
   </style>
 </head>
-<body>
-  <h2>📞 CDR File Viewer</h2>
-  <input type="file" id="csvFileInput" accept=".csv" />
-  <input type="text" id="searchInput" placeholder="Search CDR records...">
-  <div id="tableContainer"></div>
+<body data-theme="light">
+  <div class="container">
+    <h2>📞 Modern CDR Viewer</h2>
+
+    <div class="controls">
+      <input type="file" id="csvFileInput" accept=".csv" />
+      <input type="text" id="searchInput" placeholder="Search CDR..." />
+      <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+      <button onclick="downloadCSV()">⬇️ Export CSV</button>
+    </div>
+
+    <!-- 🔍 Filter Section -->
+    <div class="filter-box">
+      <select id="callTypeFilter">
+        <option value="All">All Types</option>
+        <option value="Incoming">Incoming</option>
+        <option value="Outgoing">Outgoing</option>
+      </select>
+
+      <input type="number" id="minDurationFilter" placeholder="Min Duration (sec)" min="0" />
+
+      <button onclick="applyFilters()">Apply Filters</button>
+      <button onclick="resetFilters()">Reset</button>
+    </div>
+
+    <div id="summary" class="summary"></div>
+    <div id="tableContainer"></div>
+  </div>
 
   <script>
+    let tableData = [];
+    let filteredData = [];
+
     document.getElementById("csvFileInput").addEventListener("change", function (e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -61,15 +176,53 @@
       const reader = new FileReader();
       reader.onload = function (event) {
         const text = event.target.result;
-        const rows = text.split("\n").map(row => row.split(","));
-        createTable(rows);
+        tableData = text.split("\n").map(row => row.split(","));
+        filteredData = [...tableData];
+        renderTable(filteredData);
+        updateSummary(filteredData);
       };
       reader.readAsText(file);
     });
 
-    function createTable(data) {
+    document.getElementById("searchInput").addEventListener("input", applyFilters);
+
+    function applyFilters() {
+      const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+      const callType = document.getElementById("callTypeFilter").value.toLowerCase();
+      const minDuration = parseInt(document.getElementById("minDurationFilter").value || 0);
+
+      const headers = tableData[0];
+      const typeIdx = headers.indexOf("CALL_TYPE");
+      const durationIdx = headers.indexOf("Call Duration");
+
+      filteredData = tableData.filter((row, index) => {
+        if (index === 0) return true; // keep header
+
+        const matchText = row.join(" ").toLowerCase().includes(searchTerm);
+        const matchType = callType === "all" || (row[typeIdx]?.toLowerCase() === callType);
+        const matchDuration = (parseInt(row[durationIdx]) || 0) >= minDuration;
+
+        return matchText && matchType && matchDuration;
+      });
+
+      renderTable(filteredData);
+      updateSummary(filteredData);
+    }
+
+    function resetFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("callTypeFilter").value = "All";
+      document.getElementById("minDurationFilter").value = "";
+      filteredData = [...tableData];
+      renderTable(filteredData);
+      updateSummary(filteredData);
+    }
+
+    function renderTable(data) {
       const container = document.getElementById("tableContainer");
       container.innerHTML = "";
+
+      if (data.length < 1) return;
 
       const table = document.createElement("table");
       const thead = document.createElement("thead");
@@ -77,9 +230,10 @@
 
       const headers = data[0];
       const headerRow = document.createElement("tr");
-      headers.forEach(header => {
+      headers.forEach((header, index) => {
         const th = document.createElement("th");
         th.textContent = header.trim();
+        th.onclick = () => sortByColumn(index);
         headerRow.appendChild(th);
       });
       thead.appendChild(headerRow);
@@ -97,17 +251,51 @@
       table.appendChild(thead);
       table.appendChild(tbody);
       container.appendChild(table);
+    }
 
-      // Add search filter
-      document.getElementById("searchInput").addEventListener("input", function () {
-        const filter = this.value.toLowerCase();
-        const rows = tbody.querySelectorAll("tr");
-        rows.forEach(row => {
-          const cells = Array.from(row.querySelectorAll("td"));
-          const matches = cells.some(td => td.textContent.toLowerCase().includes(filter));
-          row.style.display = matches ? "" : "none";
-        });
+    function sortByColumn(index) {
+      const header = tableData[0];
+      const sorted = [...filteredData.slice(1)].sort((a, b) => a[index].localeCompare(b[index]));
+      filteredData = [header, ...sorted];
+      renderTable(filteredData);
+    }
+
+    function updateSummary(data) {
+      const summary = document.getElementById("summary");
+      if (data.length < 2) return (summary.innerHTML = "");
+
+      const callTypeIndex = data[0].indexOf("CALL_TYPE");
+      const durationIndex = data[0].indexOf("Call Duration");
+
+      let incoming = 0, outgoing = 0, total = data.length - 1, duration = 0;
+
+      data.slice(1).forEach(row => {
+        if (row[callTypeIndex]?.toLowerCase().includes("in")) incoming++;
+        if (row[callTypeIndex]?.toLowerCase().includes("out")) outgoing++;
+        duration += parseInt(row[durationIndex]) || 0;
       });
+
+      summary.innerHTML = `
+        <div>📄 Total Records: <strong>${total}</strong></div>
+        <div>📥 Incoming: <strong>${incoming}</strong></div>
+        <div>📤 Outgoing: <strong>${outgoing}</strong></div>
+        <div>⏱ Total Duration: <strong>${duration}</strong> sec</div>
+      `;
+    }
+
+    function toggleTheme() {
+      const theme = document.body.getAttribute("data-theme") === "light" ? "dark" : "light";
+      document.body.setAttribute("data-theme", theme);
+    }
+
+    function downloadCSV() {
+      if (filteredData.length < 2) return;
+      let csv = filteredData.map(row => row.join(",")).join("\n");
+      let blob = new Blob([csv], { type: "text/csv" });
+      let a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "filtered_cdr.csv";
+      a.click();
     }
   </script>
 </body>
