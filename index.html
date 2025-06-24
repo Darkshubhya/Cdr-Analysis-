@@ -18,105 +18,153 @@
     <script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js/dist/zip.js"></script>
 
     <style>
-     * {
+:root {
+  --primary: #3949ab;
+  --primary-dark: #1a237e;
+  --accent: #00bcd4;
+  --danger: #e53935;
+  --success: #43a047;
+  --bg-dark: #0f2027;
+  --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --text: #e0f7fa;
+  --border-radius: 12px;
+  --transition: 0.3s ease;
+}
+
+* {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: var(--transition);
+  scroll-behavior: smooth;
 }
 
 body {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: #091818; /* neon glow effect */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 14px;
-  margin: 0;
-  padding: 0;
+  font-size: 15px;
+  background: var(--bg-gradient);
+  color: var(--text);
+  overflow-x: hidden;
 }
 
-h1 {
-  text-align: left;
-  color: #ffffff;
-  margin: 20px 0;
-  font-size: 28px;
+/* Header */
+header {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  padding: 20px 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  gap: 15px;
+  list-style: none;
+}
+
+.menu li a {
+  background-color: var(--primary);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: 600;
+}
+.menu li a:hover {
+  background-color: var(--primary-dark);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* File Upload */
 .fileControl {
   display: flex;
-  justify-content: flex-start; /* changed from center */
   align-items: center;
-  margin: 20px;
-  gap: 20px; /* Add some space between heading and file input */
+  margin: 30px 20px;
+  gap: 20px;
 }
 
 input[type="file"] {
-  padding: 8px 12px;
-  border: 1px solid #000000;
-  border-radius: 6px;
-  background-color: #fff;
-  transition: box-shadow 0.3s ease;
+  padding: 12px 18px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: rgba(87, 59, 59, 0.08);
+  color: #fff;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
 }
 input[type="file"]:hover {
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-
-.export {
-  margin: 20px auto;
-  text-align: center;
-  padding-top: 10px; /* extra space from top */
-}
-
-
-.tab, .sub-tab {
-  padding: 8px 14px;
-  margin: 5px;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s;
-  font-weight: 500;
 }
 
-.sub-tab {
-  background-color: #6f42c1;
+/* Tabs */
+.tab, .sub-tab {
+  padding: 10px 20px;
+  margin: 6px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  background: var(--primary);
   color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .sub-tab.active {
-  background-color: #343a40;
-  color: #fff;
+  background: #111;
   font-weight: bold;
 }
 
+/* Table Wrapper */
+#table-container {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-dark) #1a1a1a;
+}
+
+/* Table */
 table {
-  width: 95%;
-  margin: 20px auto;
+  width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: #fff;
 }
 
 th, td {
-  border: 1px solid #dee2e6;
-  padding: 10px;
+  padding: 14px 18px;
   text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
+  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
 }
-
 th {
-  background-color: #6f42c1;
-  color: #fff;
+  background: var(--primary);
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
+/* Row Hover */
 td:hover {
-  overflow: visible;
   white-space: normal;
-  max-width: none;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.06);
 }
 
+/* Scroll Buttons */
 .scroll-buttons {
   position: fixed;
   bottom: 20px;
@@ -127,156 +175,101 @@ td:hover {
 }
 
 .scroll-buttons button {
-  padding: 10px 14px;
-  background-color: #6f42c1;
+  padding: 12px 16px;
+  background-color: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .scroll-buttons button:hover {
-  background-color: #512b8a;
+  background-color: var(--primary-dark);
 }
 
-header {
-  background: linear-gradient(135deg, #283593, #8e24aa);
-  padding: 10px 0;
-}
-
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-}
-
-.menu {
-  list-style: none;
-  display: flex;
-  gap: 10px;
-  padding: 0;
-  margin: 0;
-}
-
-.menu li a {
-  background-color: #3949ab;
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 5px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-.menu li a:hover {
-  background-color: #1a237e;
-  color: #f1f1f1;
-}
-
-.radio-buttons-container {
-  display: flex;
-  align-items: center;
-  margin: 20px;
-}
-
-.radio-buttons-container label {
-  margin-right: 15px;
-  font-weight: 600;
-}
-
-#table-container {
-  height: calc(100vh - 200px);
-  overflow: auto;
-  padding: 10px;
-}
-
-#table-data {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-#map {
-  display: none;
-  height: 100vh;
-  width: 100%;
-}
-
-#distance-button {
-  margin: 20px;
-}
-
+/* Tooltip */
 .common-bubble {
   position: relative;
   cursor: pointer;
 }
-
 .tooltip {
   display: none;
   position: absolute;
-  background-color: #000;
+  background: rgba(0, 0, 0, 0.9);
   color: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
-  z-index: 1000;
-  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 999;
+  font-size: 13px;
 }
 .common-bubble:hover .tooltip {
   display: block;
 }
 
-.bubbles-container.hidden {
-  display: none;
-}
-
 /* Dropdown */
 .dropdown {
   position: relative;
-  display: inline-block;
 }
-
 .dropbtn {
-  background-color: #3498db;
+  background-color: var(--accent);
   color: white;
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 5px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: var(--border-radius);
   border: none;
   cursor: pointer;
 }
-
 .dropdown-content {
   display: none;
   position: absolute;
   background-color: #ffffff;
-  min-width: 180px;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  z-index: 1;
+  min-width: 200px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
 }
-
 .dropdown-content a {
-  color: #333;
   padding: 12px 16px;
-  text-decoration: none;
   display: block;
+  color: #333;
+  text-decoration: none;
 }
 .dropdown-content a:hover {
   background-color: #f1f1f1;
 }
-
 .show {
   display: block;
 }
 
+/* Chart */
 #commonBPartyChart {
-  width: 1000px;
+  width: 100%;
+  max-width: 1000px;
   height: 1200px;
+  margin: 0 auto;
 }
 
-    </style>
+/* Scrollbar Styling */
+body::-webkit-scrollbar,
+#table-container::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+
+body::-webkit-scrollbar-thumb,
+#table-container::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+body::-webkit-scrollbar-track,
+#table-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+
+</style>
+
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDl_O2JlHlk8MCvAFI2ZMEoLtMvf27revc&libraries=geometry"
       defer
@@ -318,33 +311,91 @@ header {
 </div>
 
 <script>
-
-
-function filterByCallType(type) {
-  if (!activeTab) {
-    alert("No file loaded.");
-    return;
-  }
-
-  fetchFileDataFromIndexedDB(activeTab).then((data) => {
-    const callTypeIndex = data[0].indexOf("Call Type");
-
-    if (callTypeIndex === -1) {
-      alert("Call Type column not found!");
+  async function exportActiveFileTab() {
+    if (!activeTab || !activeSubTab) {
+      alert("No active tab or sub-tab selected.");
       return;
     }
 
-    const filtered = data.filter((row, index) => {
-      if (index === 0) return true; // Keep header
-      return row[callTypeIndex] && row[callTypeIndex].toLowerCase() === type.toLowerCase();
+    fetchFileDataFromIndexedDB(activeTab).then(async (data) => {
+      let tableData = await processSubTabData(activeSubTab, data);
+      if (!tableData || tableData.length === 0) {
+        alert("No data found in active file tab.");
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(tableData);
+      XLSX.utils.book_append_sheet(wb, ws, activeSubTab);
+      XLSX.writeFile(wb, `${activeTab}_${activeSubTab}_FileTab.xlsx`);
     });
+  }
 
-    displayFilteredData(filtered);
-  });
-}
+  async function exportActiveAnalysisTab() {
+    if (!activeTab || !activeSubTab) {
+      alert("No active tab or sub-tab selected.");
+      return;
+    }
 
+    fetchFileDataFromIndexedDB(activeTab).then(async (data) => {
+      let tableData = await processSubTabData(activeSubTab, data);
+      if (!tableData || tableData.length === 0) {
+        alert("No data found in active analysis tab.");
+        return;
+      }
 
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(tableData);
+      XLSX.utils.book_append_sheet(wb, ws, activeSubTab);
+      XLSX.writeFile(wb, `${activeTab}_${activeSubTab}_AnalysisTab.xlsx`);
+    });
+  }
+
+  async function exportAllFileTabs() {
+    const wb = XLSX.utils.book_new();
+    const subTabs = [
+      "CDR", "B Party", "Max Duration", "Max IMEI", "Max IMSI",
+      "Call Max Location", "SMS Analysis", "Common B Party",
+      "Mobile No. Brief", "Common IMEI"
+    ];
+
+    const mapElement = document.getElementById("map");
+    const mapDisplayStyle = mapElement.style.display;
+    mapElement.style.display = "none";
+
+    const progressDialog = createProgressDialog();
+    const fileNames = Object.keys(allData);
+
+    for (let f = 0; f < fileNames.length; f++) {
+      const fileName = fileNames[f];
+      const data = await fetchFileDataFromIndexedDB(fileName);
+      for (let i = 0; i < subTabs.length; i++) {
+        const subTab = subTabs[i];
+        updateProgressDialog(
+          progressDialog,
+          `Processing ${fileName} - ${subTab}`,
+          ((f * subTabs.length + i + 1) / (fileNames.length * subTabs.length)) * 100
+        );
+        try {
+          const tableData = await processSubTabData(subTab, data);
+          if (tableData && tableData.length > 0) {
+            const ws = XLSX.utils.aoa_to_sheet(tableData);
+            formatWorksheet(ws, tableData);
+            XLSX.utils.book_append_sheet(wb, ws, `${fileName}_${subTab}`);
+          }
+        } catch (error) {
+          console.error(`Error processing ${fileName} - ${subTab}:`, error);
+        }
+      }
+    }
+
+    XLSX.writeFile(wb, `All_File_Tabs_Data.xlsx`);
+    document.body.removeChild(progressDialog);
+    mapElement.style.display = mapDisplayStyle;
+  }
 </script>
+
+
 
 
 <div class="filter-box" style="padding: 20px; background: #ffffff; margin: 20px; border-radius: 10px;">
@@ -416,6 +467,7 @@ function filterCDRByMobileAndDate() {
 
 </script>
 
+
     <div id="table-container">
       <div id="table-data">
         <table id="cleaned-data"></table>
@@ -426,6 +478,9 @@ function filterCDRByMobileAndDate() {
         <button id="scroll-down">⬇️</button>
       </div>
     </div>
+
+
+    
 
     <script>
       let activeTab = null;
@@ -1266,21 +1321,19 @@ function filterCDRByMobileAndDate() {
 
       function displaySubTabs(data) {
         subTabsDiv.innerHTML = "";
-      const subTabs = [
-  "CDR",
-  "B Party",
-  "Max Duration",
-  "Max IMEI",
-  "Max IMSI",
-  "Call Max Location",
-  "SMS Analysis",
-  "Common B Party",
-  "Common IMEI",
-  "Mobile No. Breif",
-  "Network Graph",
- 
-];
-
+        const subTabs = [
+          "CDR",
+          "B Party",
+          "Max Duration",
+          "Max IMEI",
+          "Max IMSI",
+          "Call Max Location",
+          "SMS Analysis",
+          "Common B Party",
+          "Common IMEI",
+          "Mobile No. Breif",
+          "Network Graph",
+        ];
         subTabs.forEach((subTabName) => {
           subTabsDiv.appendChild(createSubTab(subTabName, data));
         });
@@ -3693,10 +3746,6 @@ function filterCDRByMobileAndDate() {
           return acc;
         }, {});
 
-
-      
-
-        
         const processedData = await Promise.all(
           Object.entries(imeiCounts)
             .sort((a, b) => b[1] - a[1])
@@ -4139,7 +4188,7 @@ function filterCDRByMobileAndDate() {
           });
         } else {
           cleanedDataTable.innerHTML =
-            "<p>No common B Party data found.</p>";
+            "<p>कोई डेटा उपलब्ध नहीं है या कोई कॉमन बी पार्टी नहीं मिली।</p>";
         }
       }
 
@@ -4178,10 +4227,9 @@ function filterCDRByMobileAndDate() {
       }
     </script>
 
-<footer style="margin-top: 40px; text-align: center; font-size: 14px; color: #000000;">
+<footer style="margin-top: 40px; text-align: center; font-size: 14px; color: #ffffff;">
  © Vedant Hondre — All Rights Reserved
 </footer>
-
 
   </body>
 </html>
