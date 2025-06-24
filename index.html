@@ -310,6 +310,46 @@ body::-webkit-scrollbar-track,
   <button onclick="filterByCallType('Outgoing')" style="padding: 8px 14px; background: #2ecc71; color: white; border: none; cursor: pointer;  border-radius: 6px;">📤 Outgoing</button>
 </div>
 
+
+  <script>
+function filterByCallType(type) {
+  if (!activeTab) {
+    alert("Please upload a file first.");
+    return;
+  }
+
+  fetchFileDataFromIndexedDB(activeTab).then((data) => {
+    const header = data[0];
+    const possibleColumns = ["Call Type", "CallType", "CALL_TYPE", "Call Type (In/Out)", "Type", "Direction"];
+    let callTypeColumn = null;
+
+    for (const col of possibleColumns) {
+      if (header.includes(col)) {
+        callTypeColumn = col;
+        break;
+      }
+    }
+
+    if (!callTypeColumn) {
+      alert("No column found for call type (Incoming/Outgoing).");
+      return;
+    }
+
+    const callTypeIndex = header.indexOf(callTypeColumn);
+
+    const filtered = [header, ...data.slice(1).filter(row => {
+      const val = (row[callTypeIndex] || "").toLowerCase();
+      return val.includes(type.toLowerCase());
+    })];
+
+    displayFilteredData(filtered);
+  });
+}
+
+</script>
+
+
+
 <script>
   async function exportActiveFileTab() {
     if (!activeTab || !activeSubTab) {
@@ -393,6 +433,8 @@ body::-webkit-scrollbar-track,
     document.body.removeChild(progressDialog);
     mapElement.style.display = mapDisplayStyle;
   }
+
+
 </script>
 
 
