@@ -17,258 +17,234 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js/dist/zip.js"></script>
 
-    <style>
-:root {
-  --primary: #3949ab;
-  --primary-dark: #1a237e;
-  --accent: #00bcd4;
-  --danger: #e53935;
-  --success: #43a047;
-  --bg-dark: #0f2027;
-  --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  --card-bg: rgba(255, 255, 255, 0.04);
-  --text: #e0f7fa;
-  --border-radius: 12px;
-  --transition: 0.3s ease;
-}
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  transition: var(--transition);
-  scroll-behavior: smooth;
-}
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background: linear-gradient(-45deg, #e3f2fd, #fce4ec, #f3e5f5, #e8f5e9);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #000;
+    position: relative;
+    overflow-x: hidden;
+  }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 15px;
-  background: var(--bg-gradient);
-  color: var(--text);
-  overflow-x: hidden;
-}
+  @keyframes gradientBG {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 
-/* Header */
-header {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  padding: 20px 0;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-}
+  /* ✨ EXTRA Layered Glow Animation */
+  body::before {
+    content: "";
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 20%, transparent 80%);
+    animation: floatParticles 60s linear infinite;
+    z-index: -1;
+  }
 
-/* Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
+  @keyframes floatParticles {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    100% {
+      transform: translate(10%, 10%) rotate(360deg);
+    }
+  }
 
-/* Menu */
-.menu {
-  display: flex;
-  gap: 15px;
-  list-style: none;
-}
+  header {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+  }
 
-.menu li a {
-  background-color: var(--primary);
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: var(--border-radius);
-  text-decoration: none;
-  font-weight: 600;
-}
-.menu li a:hover {
-  background-color: var(--primary-dark);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-}
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+  }
 
-/* File Upload */
-.fileControl {
-  display: flex;
-  align-items: center;
-  margin: 30px 20px;
-  gap: 20px;
-}
+  .menu {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
 
-input[type="file"] {
-  padding: 12px 18px;
-  border: none;
-  border-radius: var(--border-radius);
-  background: rgba(87, 59, 59, 0.08);
-  color: #fff;
-  font-weight: 600;
-  backdrop-filter: blur(6px);
-  cursor: pointer;
-}
-input[type="file"]:hover {
-  background: rgba(255, 255, 255, 0.15);
-  cursor: pointer;
-}
+  .menu li a {
+    text-decoration: none;
+    background-color: #007BFF;
+    color: white;
+    padding: 8px 14px;
+    display: inline-block;
+    border-radius: 4px;
+  }
 
-/* Tabs */
-.tab, .sub-tab {
-  padding: 10px 20px;
-  margin: 6px;
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  background: var(--primary);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-.sub-tab.active {
-  background: #111;
-  font-weight: bold;
-}
+  .fileControl {
+    margin-bottom: 20px;
+  }
 
-/* Table Wrapper */
-#table-container {
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-  overflow-x: auto;
-  padding: 20px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-dark) #1a1a1a;
-}
+  input[type="file"] {
+    padding: 6px;
+  }
 
-/* Table */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  color: #fff;
-}
+  .tab, .sub-tab {
+    display: inline-block;
+    padding: 8px 14px;
+    margin: 4px;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
 
-th, td {
-  padding: 14px 18px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  white-space: nowrap;
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-th {
-  background: var(--primary);
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
+  .sub-tab.active {
+    background-color: #0056b3;
+    font-weight: bold;
+  }
 
-/* Row Hover */
-td:hover {
-  white-space: normal;
-  overflow: visible;
-  background: rgba(255, 255, 255, 0.06);
-}
+  #table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+    scroll-behavior: smooth;
+  }
 
-/* Scroll Buttons */
-.scroll-buttons {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+  .fixed-scrollbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 20px;
+    background: #f0f0f0;
+    z-index: 9999;
+    scroll-behavior: smooth;
+  }
 
-.scroll-buttons button {
-  padding: 12px 16px;
-  background-color: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-.scroll-buttons button:hover {
-  background-color: var(--primary-dark);
-}
+  .fixed-scrollbar .scroll-content {
+    height: 1px;
+  }
 
-/* Tooltip */
-.common-bubble {
-  position: relative;
-  cursor: pointer;
-}
-.tooltip {
-  display: none;
-  position: absolute;
-  background: rgba(0, 0, 0, 0.9);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
-  z-index: 999;
-  font-size: 13px;
-}
-.common-bubble:hover .tooltip {
-  display: block;
-}
+  table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    background: #fff;
+  }
 
-/* Dropdown */
-.dropdown {
-  position: relative;
-}
-.dropbtn {
-  background-color: var(--accent);
-  color: white;
-  padding: 10px 16px;
-  font-size: 14px;
-  border-radius: var(--border-radius);
-  border: none;
-  cursor: pointer;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #ffffff;
-  min-width: 200px;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-}
-.dropdown-content a {
-  padding: 12px 16px;
-  display: block;
-  color: #333;
-  text-decoration: none;
-}
-.dropdown-content a:hover {
-  background-color: #f1f1f1;
-}
-.show {
-  display: block;
-}
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    white-space: nowrap;
+  }
 
-/* Chart */
-#commonBPartyChart {
-  width: 100%;
-  max-width: 1000px;
-  height: 1200px;
-  margin: 0 auto;
-}
+  th {
+    background-color: #007BFF;
+    color: white;
+  }
 
-/* Scrollbar Styling */
-body::-webkit-scrollbar,
-#table-container::-webkit-scrollbar {
-  width: 10px;
-  height: 8px;
-}
+  .common-bubble {
+    position: relative;
+    display: inline-block;
+  }
 
-body::-webkit-scrollbar-thumb,
-#table-container::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 10px;
-}
+  .tooltip {
+    display: none;
+    position: absolute;
+    background-color: black;
+    color: white;
+    padding: 6px;
+    border-radius: 4px;
+    top: 100%;
+    left: 0;
+  }
 
-body::-webkit-scrollbar-track,
-#table-container::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
+  .common-bubble:hover .tooltip {
+    display: block;
+  }
 
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
 
+  .dropbtn {
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    min-width: 150px;
+    z-index: 1000;
+  }
+
+  .dropdown-content a {
+    padding: 10px;
+    display: block;
+    text-decoration: none;
+    color: #000;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  #commonBPartyChart {
+    margin-top: 40px;
+    height: 400px;
+    background: #eaeaea;
+    text-align: center;
+    line-height: 400px;
+    color: #666;
+  }
+
+  #table-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  #table-container::-webkit-scrollbar-thumb {
+    background-color: #007BFF;
+    border-radius: 4px;
+  }
+
+  #table-container::-webkit-scrollbar-track {
+    background-color: #e0e0e0;
+  }
 </style>
+
+
+
 
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDl_O2JlHlk8MCvAFI2ZMEoLtMvf27revc&libraries=geometry"
@@ -309,6 +285,9 @@ body::-webkit-scrollbar-track,
   <button onclick="filterByCallType('Incoming')" style="padding: 8px 14px; background: #3498db; color: white; border: none; cursor: pointer; border-radius: 6px; margin-right: 10px;">📥 Incoming</button>
   <button onclick="filterByCallType('Outgoing')" style="padding: 8px 14px; background: #2ecc71; color: white; border: none; cursor: pointer;  border-radius: 6px;">📤 Outgoing</button>
 </div>
+
+
+
 
 
   <script>
@@ -1369,7 +1348,10 @@ function filterCDRByMobileAndDate() {
           "Max Duration",
           "Max IMEI",
           "Max IMSI",
+          "Day Stay",
+          "Night Stay",
           "Call Max Location",
+          "Short Calls",
           "SMS Analysis",
           "Common B Party",
           "Common IMEI",
@@ -1384,57 +1366,102 @@ function filterCDRByMobileAndDate() {
         displayPageData(data, currentPage); // Load the first page of data
       }
 
-      function createSubTab(subTabName, data) {
-        const subTab = document.createElement("div");
-        subTab.className = "sub-tab";
-        subTab.textContent = subTabName;
-        subTab.addEventListener("click", () => {
-          if (activeSubTab === subTabName) return;
-          document
-            .querySelectorAll(".sub-tab")
-            .forEach((t) => t.classList.remove("active"));
-          subTab.classList.add("active");
-          activeSubTab = subTabName;
-          currentPage = 1; // Reset the page to 1 on tab change
+     function createSubTab(subTabName, data) {
+  const subTab = document.createElement("div");
+  subTab.className = "sub-tab";
+  subTab.textContent = subTabName;
 
-          if (subTabName === "CDR") {
-            displayPageData(data, currentPage);
-            hideRadioButtons();
-          } else if (subTabName === "B Party") {
-            displayBPartyData(data);
-            hideRadioButtons();
-          } else if (subTabName === "Max Duration") {
-            displayMaxDurationData(data);
-            hideRadioButtons();
-          } else if (subTabName === "Max IMEI") {
-            displayMaxIMEIData(data);
-            hideRadioButtons();
-          } else if (subTabName === "Max IMSI") {
-            displayMaxIMSIData(data);
-            hideRadioButtons();
-          } else if (subTabName === "Call Max Location") {
-            displayMaxCallLocationData(data);
-            hideRadioButtons();
-          } else if (subTabName === "SMS Analysis") {
-            displaySMSAnalysisData(data);
-            hideRadioButtons();
-          } else if (subTabName === "Common B Party") {
-            displayCommonBPartyData();
-            showRadioButtons();
-          } else if (subTabName === "Common IMEI") {
-            displayCommonIMEIData();
-            hideRadioButtons();
-          } else if (subTabName === "Mobile No. Breif") {
-            displayInvTblData();
-            hideRadioButtons();
-          } else if (subTabName === "Network Graph") {
-            subTab.addEventListener("click", () => {
-              displayNetworkGraph();
-            });
-          }
-        });
-        return subTab;
-      }
+  subTab.addEventListener("click", () => {
+    if (activeSubTab === subTabName) return;
+
+    document.querySelectorAll(".sub-tab").forEach((t) => t.classList.remove("active"));
+    subTab.classList.add("active");
+    activeSubTab = subTabName;
+    currentPage = 1;
+
+    if (subTabName === "CDR") {
+      displayPageData(data, currentPage);
+      hideRadioButtons();
+    } else if (subTabName === "B Party") {
+      displayBPartyData(data);
+      hideRadioButtons();
+    } else if (subTabName === "Max Duration") {
+      displayMaxDurationData(data);
+      hideRadioButtons();
+    } else if (subTabName === "Max IMEI") {
+      displayMaxIMEIData(data);
+      hideRadioButtons();
+    } else if (subTabName === "Max IMSI") {
+      displayMaxIMSIData(data);
+      hideRadioButtons();
+    } else if (subTabName === "Call Max Location") {
+      displayMaxCallLocationData(data);
+      hideRadioButtons();
+    } else if (subTabName === "SMS Analysis") {
+      displaySMSAnalysisData(data);
+      hideRadioButtons();
+    } else if (subTabName === "Common B Party") {
+      displayCommonBPartyData();
+      showRadioButtons();
+    } else if (subTabName === "Common IMEI") {
+      displayCommonIMEIData(data);
+      hideRadioButtons();
+    } else if (subTabName === "Mobile No. Breif") {
+      displayInvTblData();
+      hideRadioButtons();
+    } else if (subTabName === "Network Graph") {
+      displayNetworkGraph();
+    } else if (subTabName === "Night Stay" || subTabName === "Day Stay") {
+      displayStayTypeData(data, subTabName);
+      hideRadioButtons();
+    }
+     else if (subTabName === "Short Calls") {
+     displayShortCalls(data);
+     hideRadioButtons();
+    }
+
+
+  });
+
+  return subTab;
+}
+
+      
+function displayStayTypeData(data, stayType) {
+  const timeIndex = data[0].indexOf("Time");
+  if (timeIndex === -1) {
+    alert("No 'Time' column found.");
+    return;
+  }
+
+  const filtered = [data[0], ...data.slice(1).filter(row => {
+    const timeStr = row[timeIndex];
+    if (!timeStr) return false;
+    const hour = parseInt(timeStr.split(":")[0]);
+    return stayType === "Night Stay"
+      ? (hour >= 20 || hour < 6)
+      : (hour >= 6 && hour < 20);
+  })];
+
+  displayFilteredData(filtered);
+}
+
+
+function displayShortCalls(data) {
+  const durationIndex = data[0].indexOf("Duration");
+  if (durationIndex === -1) {
+    alert("No 'Duration' column found.");
+    return;
+  }
+
+  const filtered = [data[0], ...data.slice(1).filter(row => {
+    const duration = parseInt(row[durationIndex]);
+    return duration <= 15;
+  })];
+
+  displayFilteredData(filtered);
+}
+
 
       function addSearchIconToHeader(headerRow) {
         headerRow.querySelectorAll("th").forEach((th, i) => {
@@ -3677,33 +3704,74 @@ function filterCDRByMobileAndDate() {
         }
       }
 
-      async function processSubTabData(subTab, data) {
-        switch (subTab) {
-          case "CDR":
-            return processDataForExcel(data);
-          case "B Party":
-            return processBPartyData(data);
-          case "Max Duration":
-            return processMaxDurationData(data);
-          case "Max IMEI":
-            return await processMaxIMEIData(data);
-          case "Max IMSI":
-            return processMaxIMSIData(data);
-          case "Call Max Location":
-            return processCallMaxLocationData(data);
-          case "SMS Analysis":
-            return await processSMSAnalysisData(data);
-          case "Common B Party":
-            return processCommonBPartyData(data);
-          case "Mobile No. Brief":
-            return processInvTblData(data);
-          case "Common IMEI":
-            return processCommonIMEIData(data);
-          default:
-            console.log("Unknown sub-tab:", subTab);
-            return null;
-        }
-      }
+   async function processSubTabData(subTab, data) {
+  switch (subTab) {
+    case "CDR":
+      return processDataForExcel(data);
+    case "B Party":
+      return processBPartyData(data);
+    case "Max Duration":
+      return processMaxDurationData(data);
+    case "Max IMEI":
+      return await processMaxIMEIData(data);
+    case "Max IMSI":
+      return processMaxIMSIData(data);
+    case "Call Max Location":
+      return processCallMaxLocationData(data);
+    case "SMS Analysis":
+      return await processSMSAnalysisData(data);
+    case "Common B Party":
+      return processCommonBPartyData(data);
+    case "Mobile No. Brief":
+      return processInvTblData(data);
+    case "Common IMEI":
+      return processCommonIMEIData(data);
+
+    // ✅ ADD THESE BELOW 👇
+    case "Short Calls":
+      return processShortCallsData(data);
+    case "Night Stay":
+    case "Day Stay":
+      return processStayTypeExportData(data, subTab);
+
+    default:
+      console.log("Unknown sub-tab:", subTab);
+      return null;
+  }
+}
+
+function processShortCallsData(data) {
+  const durationIndex = data[0].indexOf("Duration");
+  const filtered = [data[0], ...data.slice(1).filter(row => {
+    const d = parseInt(row[durationIndex]);
+    return d <= 10;
+  })];
+
+  const header = [`${activeTab} - Short Calls`];
+  const subHeader = filtered[0];
+  const processed = filtered.slice(1);
+  return [header, subHeader, ...processed];
+}
+
+function processStayTypeExportData(data, stayType) {
+  const timeIndex = data[0].indexOf("Time");
+  if (timeIndex === -1) return null;
+
+  const filtered = [data[0], ...data.slice(1).filter(row => {
+    const timeStr = row[timeIndex];
+    if (!timeStr) return false;
+    const hour = parseInt(timeStr.split(":")[0]);
+    return stayType === "Night Stay"
+      ? (hour >= 20 || hour < 6)
+      : (hour >= 6 && hour < 20);
+  })];
+
+  const header = [`${activeTab} - ${stayType}`];
+  const subHeader = filtered[0];
+  const processed = filtered.slice(1);
+  return [header, subHeader, ...processed];
+}
+
 
       function processDataForExcel(data) {
         const header = [`${activeTab} - CDR Data`];
@@ -4269,7 +4337,7 @@ function filterCDRByMobileAndDate() {
       }
     </script>
 
-<footer style="margin-top: 40px; text-align: center; font-size: 14px; color: #ffffff;">
+<footer style="margin-top: 40px; text-align: center; font-size: 14px; color: #000000;">
  © Vedant Hondre — All Rights Reserved
 </footer>
 
