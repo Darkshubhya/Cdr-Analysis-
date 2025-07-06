@@ -255,6 +255,7 @@
    
     <div class="fileControl">
      <h1>CDR Processor</h1>
+        <pre id="output"></pre>
 
       
       <input
@@ -414,6 +415,8 @@ function filterByCallType(type) {
   }
 
 
+
+  
 </script>
 
 
@@ -484,6 +487,24 @@ function filterCDRByMobileAndDate() {
     displayFilteredData(filtered);
   });
 }
+
+
+
+  window.addEventListener('DOMContentLoaded', () => {
+  const data = localStorage.getItem('cdrData');
+  if (data) {
+    // Example: show in console or load into your parser
+    console.log('CDR File Loaded:', data);
+
+    // Optional: Display in <pre> or load into your table/chart
+    const output = document.getElementById('output');
+    if (output) {
+      output.textContent = data;
+    }
+  } else {
+    alert('No CDR data found. Please upload file first.');
+  }
+});
 
 
 </script>
